@@ -1,0 +1,39 @@
+<html>
+  <body>
+    <p>
+    Instructions:
+    <ul>
+      <li>By default you are in <b>Visual</b> mode. Pressing &lt;Esc&gt;
+        in any other mode should bring you to visual mode.</li>
+      <li>
+        Press 'd' to enter <b>Draw</b> mode from visual mode.
+        <ul>
+          <li>You click to add <i>nodes</i>.</li>
+          <li>First node is always treated as one end point of the B-spline.</li>
+          <li>Node registered by the last click is treated as the
+            other end point of the B-spline</li>
+          <li>All other nodes are treated as <i>control points</i></li>
+          <li>First click fixates one end of the B-spline.</li>
+        </ul></li>
+      <li>
+        Press 'e' to enter <b>Edit</b> mode from visual mode.
+        <ul>
+          <li>Click on any node to <i>select</i> it.</li>
+          <li>Press 'x' to delete the selected node.
+            <ul>
+              <li>If the selected node was an end point, then the
+                adjacent control point is marked as the new
+                endpoint</li>
+            </ul></li>
+          <li>Press 'm' and click to assign a new position to the
+            selected node.</li>
+          <li>If the selected point is an end point, then press 'd'
+          to enter draw mode and start extending the spline from
+          that end point.</li>
+          <li>Press 'a' to add a new control point.</li>
+        </ul>
+      </li>
+    </ul>
+    </p>
+  </body>
+</html>

@@ -12,9 +12,7 @@
   <table>
     <tr>
       <td>
-        <div class="slate">
-          Slate
-          Hello World
+        <div class="slate" id="slatepaper">
         </div>
       </td>
       <td>
@@ -28,16 +26,17 @@
           </tr>
           <tr>
             <td>
+              <div class="instructions">
+                <a href="man.html"  target="_blank">Go to manual.</a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
               <div class="controlboard">
-                <button onclick="movePoint()">Move Point</button>
+                <button onclick="generateTikz()">Generate TikZ</button>
                 <br>
-                <button onclick="addSegment()">Add Segment</button>
-                <br>
-                <button onclick="addControlPoint()">Add Control Point</button>
-                <br>
-                <button onclick="removeControlPoint()">Delete Control Point</button>
-                <br>
-                <button onclick="removeSegment()">Delete Segment</button>
+                <button onclick="generatePython()">Generate Python</button>
                 <br>
               </div>
             </td>
@@ -58,57 +57,8 @@
     </tr>
   </table>
 
-  <script src="raphael.js"></script> 
-  <script>
-    const SlateModes = {
-      MOVE: 'move',
-      ADDCNTRLPT: 'add.cp',
-      ADDSGMNT: 'add.sgmnt',
-      REMOVECNTRLPT: 'remove.cp',
-      REMOVESGMNT: 'remove.sgmnt',
-    }
-
-    var slateMode = SlateModes.MOVE;
-    updateStatus();
-
-    var paper = Raphael(10, 50, 320, 200);
-
-    function updateStatus() {
-      document.getElementById("status").innerHTML = "STATUS: '<b>"+slateMode+"</b>'.";
-    }
-
-    function movePoint() {
-      slateMode = SlateModes.MOVE;
-      updateStatus();
-    }
-
-    function addSegment() {
-      slateMode = SlateModes.ADDSGMNT;
-      updateStatus();
-      // Creates circle at x = 50, y = 40, with radius 10
-      var circle = paper.circle(50, 40, 10);
-      // Sets the fill attribute of the circle to red (#f00)
-      circle.attr("fill", "#f00");
-
-      // Sets the stroke attribute of the circle to white
-      circle.attr("stroke", "#fff");
-    }
-
-    function addControlPoint() {
-      slateMode = SlateModes.ADDCNTRLPT;
-      updateStatus();
-    }
-
-    function removeControlPoint() {
-      slateMode = SlateModes.REMOVECNTRLPT;
-      updateStatus();
-    }
-
-    function removeSegment() {
-      slateMode = SlateModes.REMOVESGMNT;
-      updateStatus();
-    }
-  </script>
+  <script type="text/javascript" src="raphael.js"></script> 
+  <script type="text/javascript" src="slate.js"></script> 
 
 </body>
 </html>
