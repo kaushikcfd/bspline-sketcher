@@ -11,6 +11,14 @@ const SlateModes = {
 var slateMode = SlateModes.VISUAL;
 var userMsg = "";
 
+function updateStatus() {
+  var statusMsg = "STATUS: '<b>"+slateMode+"</b>'.";
+  if (userMsg != "") {
+    statusMsg += "<br>[PROMPT]: <i>"+userMsg+"</i>";
+  }
+  document.getElementById("status").innerHTML = statusMsg;
+}
+
 
 updateStatus();
 
@@ -29,6 +37,29 @@ class DrawingContext {
   }
 }
 
+// Read keyboard events
+document.addEventListener('keypress', logKey);
+
+function logKey(e) {
+  if (e.key == 'd') {
+    if (slateMode == SlateModes.VISUAL) {
+      slateMode = SlateModes.DRAW;
+      userMsg = "Draw the spline";
+    }
+  }
+  else if (e.key == 'e') {
+    if (slateMode == SlateModes.VISUAL) {
+      slateMode = SlateModes.EDIT;
+      userMsg = "Click on a pt. to start editing it.";
+    }
+  }
+  else if (e.key == 'v') {
+    slateMode = SlateModes.VISUAL;
+    userMsg = "";
+  }
+  updateStatus();
+}
+
 
 // Get dimensions 
 const slateWidth = document.getElementById("slatepaper").clientWidth;
@@ -36,14 +67,6 @@ const slateHeight = document.getElementById("slatepaper").clientHeight;
 
 var paper = Raphael("slatepaper", slateWidth, slateHeight);
 var rect1 = paper.rect(0, 0, slateWidth, slateHeight).attr({fill: "orange"});
-
-function updateStatus() {
-  var statusMsg = "STATUS: '<b>"+slateMode+"</b>'.";
-  if (userMsg != "") {
-    statusMsg += "<br>[PROMPT]: <i>"+userMsg+"</i>";
-  }
-  document.getElementById("status").innerHTML = statusMsg;
-}
 
 function addSegment() {
   slateMode = SlateModes.ADDSGMNT;
