@@ -1,5 +1,7 @@
 //TODO: Implement the algorithm mentioned in
 // https://web.mit.edu/hyperbook/Patrikalakis-Maekawa-Cho/node17.html
+// Next TODO:
+// You keep on clicking and we start getting lines that connect the points.
 
 const SlateModes = {
   VISUAL: 'visual',
@@ -10,6 +12,7 @@ const SlateModes = {
 // Global variables
 var slateMode = SlateModes.VISUAL;
 var userMsg = "";
+var lastPoint = null;
 
 function updateStatus() {
   var statusMsg = "STATUS: '<b>"+slateMode+"</b>'.";
@@ -37,14 +40,25 @@ class DrawingContext {
   }
 }
 
+
+// Get dimensions
+const slateDiv = document.getElementById("slatepaper");
+const slateWidth = slateDiv.clientWidth;
+const slateHeight = slateDiv.clientHeight;
+
+// Create the paper
+const paper = Raphael("slatepaper", slateWidth, slateHeight);
+
 // Read keyboard events
 document.addEventListener('keypress', logKey);
 
+// Top level function which triggers which event to execute based on user behavior.
 function logKey(e) {
   if (e.key == 'd') {
     if (slateMode == SlateModes.VISUAL) {
       slateMode = SlateModes.DRAW;
       userMsg = "Draw the spline";
+      slateDiv.addEventListener("click", drawClickHandler);
     }
   }
   else if (e.key == 'e') {
@@ -54,46 +68,24 @@ function logKey(e) {
     }
   }
   else if (e.key == 'v') {
+    if (slateMode == SlateModes.DRAW) {
+      // do not listen to mouse clicks any more.
+      slateDiv.removeEventListener("click", drawClickHandler);
+    }
+
     slateMode = SlateModes.VISUAL;
     userMsg = "";
+
   }
   updateStatus();
 }
 
 
-// Get dimensions 
-const slateWidth = document.getElementById("slatepaper").clientWidth;
-const slateHeight = document.getElementById("slatepaper").clientHeight;
-
-var paper = Raphael("slatepaper", slateWidth, slateHeight);
-var rect1 = paper.rect(0, 0, slateWidth, slateHeight).attr({fill: "orange"});
-
-function addSegment() {
-  slateMode = SlateModes.ADDSGMNT;
-  userMsg = "Please select first point";
-  updateStatus();
-
-  // Creates circle at x = 50, y = 40, with radius 10
-  var circle1 = paper.circle(400, 500, 10);
-  // Sets the fill attribute of the circle to red (#f00)
-  circle1.attr("fill", "#0f0");
-  
-  // Sets the stroke attribute of the circle to white
-  circle1.attr("stroke", "#fff");
-
-  // Creates circle at x = 50, y = 40, with radius 10
-  var circle2 = paper.circle(100, 200, 10);
-  // Sets the fill attribute of the circle to red (#f00)
-  circle2.attr("fill", "#f00");
-  
-  // Sets the stroke attribute of the circle to white
-  circle2.attr("stroke", "#fff");
-
-  var sgmnt = new Segment([circle1, circle2], []);
-  segments.push(sgmnt);
-
-  userMsg = "Added a new segment.";
-  updateStatus();
+function drawClickHandler(e) {
+  const clickX = e.offsetX;
+  const clickY = e.offsetY;
+  var circle = paper.circle(clickX, clickY, 2);
+  circle.attr("fill", "#00f");
 }
 
 
