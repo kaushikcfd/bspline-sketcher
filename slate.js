@@ -50,7 +50,7 @@ const slateHeight = slateDiv.clientHeight;
 const paper = Raphael("slatepaper", slateWidth, slateHeight);
 
 // Read keyboard events
-document.addEventListener('keypress', logKey);
+document.addEventListener('keydown', logKey);
 
 // Top level function which triggers which event to execute based on user behavior.
 function logKey(e) {
@@ -67,7 +67,7 @@ function logKey(e) {
       userMsg = "Click on a pt. to start editing it.";
     }
   }
-  else if (e.key == 'v') {
+  else if (e.key == "Escape") {
     if (slateMode == SlateModes.DRAW) {
       // do not listen to mouse clicks any more.
       slateDiv.removeEventListener("click", drawClickHandler);
@@ -84,6 +84,8 @@ function logKey(e) {
 function drawClickHandler(e) {
   const clickX = e.offsetX;
   const clickY = e.offsetY;
+
+  //@TODO: '2' is no good, set the radius in a relative sense.
   var circle = paper.circle(clickX, clickY, 2);
   circle.attr("fill", "#00f");
 }
