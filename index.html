@@ -1,65 +1,63 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title> BSpline Sketcher </title>
+  <head>
+    <meta charset="utf-8" />
+    <title> BSpline Sketcher </title>
+    <link href="style.css" rel="stylesheet">
+  </head>
+  <body style="overflow:hidden;">
+    <table>
+      <tr>
+	<td>
+	  <div class="slate" id="slatepaper">
+	  </div>
+	</td>
+	<td>
+	  <table>
+	    <tr>
+	      <td>
+		<div class="stackframe">
+		  Goodbye World.
+		</div>
+	      </td>
+	    </tr>
+	    <tr>
+	      <td>
+		<div class="instructions">
+		  <a href="man.html"	target="_blank">Go to manual.</a>
+		</div>
+	      </td>
+	    </tr>
+	    <tr>
+	      <td>
+		<div class="controlboard">
+		  <button onclick="generateTikz()">Generate TikZ</button>
+		  <br>
+		  <button onclick="generatePython()">Generate Python</button>
+		  <br>
+		</div>
+	      </td>
+	    </tr>
 
-  <link href="style.css" rel="stylesheet">
+	  </table>
+	</td>
+      </tr>
+    </table>
+    <table>
+      <tr>
+	<td>
+	  <div class="statusbar">
+	    <p id="status"></p>
+	    <p id="usermsg"></p>
+	    <p id="log"></p>
+	  </div>
+	</td>
+      </tr>
+    </table>
 
-</head>
+    <script type="text/javascript" src="raphael.js"></script> 
+    <script type="text/javascript" src="slate.js"></script> 
 
-<body>
-
-  <table>
-    <tr>
-      <td>
-        <div class="slate" id="slatepaper">
-        </div>
-      </td>
-      <td>
-        <table>
-          <tr>
-            <td>
-              <div class="stackframe">
-                Goodbye World.
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div class="instructions">
-                <a href="man.html"  target="_blank">Go to manual.</a>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div class="controlboard">
-                <button onclick="generateTikz()">Generate TikZ</button>
-                <br>
-                <button onclick="generatePython()">Generate Python</button>
-                <br>
-              </div>
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
-  <table>
-    <tr>
-      <td>
-        <div class="statusbar">
-          <p id="status"></p>
-          <p id="usermsg"></p>
-        </div>
-      </td>
-    </tr>
-  </table>
-
-  <script type="text/javascript" src="raphael.js"></script> 
-  <script type="text/javascript" src="slate.js"></script> 
-
-</body>
+  </body>
 </html>
 
