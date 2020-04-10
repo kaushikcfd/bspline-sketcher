@@ -99,25 +99,20 @@ function keydownHandler(e) {
 
 
 function drawMouseMoveHandler(e) {
+  const clickX = e.clientX - slateDiv.getBoundingClientRect().left;
+  const clickY = e.clientY - slateDiv.getBoundingClientRect().top;
+
   if (floatingPoint != null) {
-    floatingPoint.translate(e.movementX, e.movementY);
+    floatingPoint.attr('cx', clickX);
+    floatingPoint.attr('cy', clickY);
   }
   else {
-    const clickX = e.clientX - slateDiv.getBoundingClientRect().left;
-    const clickY = e.clientY - slateDiv.getBoundingClientRect().top;
-
     floatingPoint = paper.circle(clickX, clickY, pointRadius);
     floatingPoint.attr("fill", "#f00");
   }
 
   if (lastClickedPoint != null) {
-    const lastClickedPointX = lastClickedPoint.getPointAtLength().x;
-    const lastClickedPointY = lastClickedPoint.getPointAtLength().y + pointRadius;
-
-    const clickX = e.clientX - slateDiv.getBoundingClientRect().left;
-    const clickY = e.clientY - slateDiv.getBoundingClientRect().top;
-
-    const pathString = `M ${ lastClickedPointX } ${ lastClickedPointY } L ${ clickX } ${ clickY }`;
+    const pathString = `M ${ lastClickedPoint.attrs.cx } ${ lastClickedPoint.attrs.cy } L ${ clickX } ${ clickY }`;
 
     if (floatingPath != null) {
       floatingPath.attr("path", pathString);
@@ -129,32 +124,10 @@ function drawMouseMoveHandler(e) {
 }
 
 function drawClickHandler(e) {
-  //@TODO: Scope for better object management.
-  // Instead of creating 'var cirlce' maybe next time, just 
-  floatingPoint.remove();
+  lastClickedPoint = floatingPoint;
+  lastClickedPoint.attr("fill", "#00f");
   floatingPoint = null;
-  if (floatingPath != null) {
-    floatingPath.remove();
-    floatingPath = null;
-  }
-
-  const clickX = e.clientX - slateDiv.getBoundingClientRect().left;
-  const clickY = e.clientY - slateDiv.getBoundingClientRect().top;
-
-  console.log(`(${clickX}, ${clickY})`);
-
-  var circle = paper.circle(clickX, clickY, pointRadius);
-  circle.attr("fill", "#00f");
-  if (lastClickedPoint != null) {
-    const lastClickedPointX = lastClickedPoint.getPointAtLength().x;
-    //@TODO: Understand why do we need the '+ pointRadius'.
-    const lastClickedPointY = lastClickedPoint.getPointAtLength().y + pointRadius;
-
-    var pathString = `M ${ lastClickedPointX } ${ lastClickedPointY } L ${ clickX } ${ clickY }`;
-    paper.path(pathString);
-  }
-
-  lastClickedPoint = circle;
+  floatingPath = null;
 }
 
 
