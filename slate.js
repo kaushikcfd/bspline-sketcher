@@ -5,6 +5,8 @@
 // [X] Click on a point and generate a 'dot' for it.
 // [X] Draw a line between the penultimate and ultimate point.
 // [X] As long as we are in draw mode... have a line floating from one point to the next, wh
+// [ ] store the knots possibly into our drawing context..
+// [ ] Display the points in the stackframe.
 // [ ] Instead of lines make them bsplines.
 // We've something which generates a point for every click. Now just ma
 
@@ -17,7 +19,7 @@ const SlateModes = {
 // Global variables
 var slateMode = SlateModes.VISUAL;
 var userMsg = "";
-var lastClickedPoint = null;
+var currentKnot = null;
 var floatingPoint = null;
 var floatingPath = null;
 
@@ -34,10 +36,73 @@ updateStatus();
 
 
 class Knot {
-  constructor(controlPoints, leftRightIndices, clampIndices) {
+  constructor(controlPoints, isClosed) {
     this.controlPoints = controlPoints;
-    this.leftRightIndices = lefRightIndices;
-    this.clampIndices = clampIndices;
+    this.isClosed = isClosed;
+    this.pathStringTillNow = `M${this.controlPoints[0].attrs.cx}, ${this.controlPoints[0].attrs.cy}  `;
+    controlPoints.slice(1).forEach(
+      el => (this.pathStringTillNow += ` ${el.attrs.cx}, ${el.attrs.cy} `));
+  }
+
+  addPoint(point) {
+    this.pathStringTillNow += `${point.attrs.cx}, ${point.attrs.cy} `;
+    this.controlPoints.push(point);
+  }
+
+  closeKnot() {
+    this.isClosed = true;
+  }
+
+  updatePathWith(path, anotherPoint) {
+    var pathString = this.pathStringTillNow + ` ${anotherPoint.attrs.cx}, ${anotherPoint.attrs.cy} `;
+    if (this.isClosed) {
+      pathString += 'Z';
+    }
+    path.attr('path', pathString);
+  }
+
+  finishPath(path) {
+    var pathString = this.pathStringTillNow;
+    if (this.isClosed) {
+      pathString += 'Z';
+    }
+    path.attr('path', pathString);
+  }
+}
+
+
+class TKnot {
+  constructor(controlPoints, isClosed) {
+    this.controlPoints = controlPoints;
+    this.isClosed = isClosed;
+    this.pathStringTillNow = `M${this.controlPoints[0].attrs.cx}, ${this.controlPoints[0].attrs.cy} T `;
+    controlPoints.slice(1).forEach(
+      el => (this.pathStringTillNow += ` ${el.attrs.cx}, ${el.attrs.cy} `));
+  }
+
+  addPoint(point) {
+    this.pathStringTillNow += `${point.attrs.cx}, ${point.attrs.cy} `;
+    this.controlPoints.push(point);
+  }
+
+  closeKnot() {
+    this.isClosed = true;
+  }
+
+  updatePathWith(path, anotherPoint) {
+    var pathString = this.pathStringTillNow + ` ${anotherPoint.attrs.cx}, ${anotherPoint.attrs.cy} `;
+    if (this.isClosed) {
+      pathString += 'Z';
+    }
+    path.attr('path', pathString);
+  }
+
+  finishPath(path) {
+    var pathString = this.pathStringTillNow;
+    if (this.isClosed) {
+      pathString += 'Z';
+    }
+    path.attr('path', pathString);
   }
 }
 
@@ -66,6 +131,11 @@ function keydownHandler(e) {
     if (slateMode == SlateModes.VISUAL) {
       slateMode = SlateModes.DRAW;
       userMsg = "Draw the spline";
+
+      // Initializing the floating path
+      floatingPath = paper.path();
+
+      // Triggering the listening events
       slateDiv.addEventListener("click", drawClickHandler);
       slateDiv.addEventListener("mousemove", drawMouseMoveHandler);
     }
@@ -76,6 +146,28 @@ function keydownHandler(e) {
       userMsg = "Click on a pt. to start editing it.";
     }
   }
+  else if (e.key == 'z') {
+    if (slateMode == SlateModes.DRAW) {
+      // do not listen to mouse clicks any more.
+      slateDiv.removeEventListener("click", drawClickHandler);
+      slateDiv.removeEventListener("mousemove", drawMouseMoveHandler);
+
+      // get rid of the last point
+      currentKnot.closeKnot();
+
+      // copied from escape.
+
+
+      currentKnot.finishPath(floatingPath);
+      currentKnot = null;
+      floatingPoint.remove();
+      floatingPoint = null;
+      floatingPath = null;
+
+      slateMode = SlateModes.VISUAL;
+      userMsg = "";
+    }
+  }
   else if (e.key == "Escape") {
     if (slateMode == SlateModes.DRAW) {
       // do not listen to mouse clicks any more.
@@ -83,10 +175,10 @@ function keydownHandler(e) {
       slateDiv.removeEventListener("mousemove", drawMouseMoveHandler);
 
       // get rid of the last point
-      lastClickedPoint = null;
+      currentKnot.finishPath(floatingPath);
+      currentKnot = null;
       floatingPoint.remove();
       floatingPoint = null;
-      floatingPath.remove();
       floatingPath = null;
     }
 
@@ -99,25 +191,25 @@ function keydownHandler(e) {
 
 
 function drawMouseMoveHandler(e) {
+  const clickX = e.clientX - slateDiv.getBoundingClientRect().left;
+  const clickY = e.clientY - slateDiv.getBoundingClientRect().top;
+
   if (floatingPoint != null) {
-    floatingPoint.translate(e.movementX, e.movementY);
+    floatingPoint.attr('cx', clickX);
+    floatingPoint.attr('cy', clickY);
   }
   else {
-    const clickX = e.clientX - slateDiv.getBoundingClientRect().left;
-    const clickY = e.clientY - slateDiv.getBoundingClientRect().top;
-
     floatingPoint = paper.circle(clickX, clickY, pointRadius);
     floatingPoint.attr("fill", "#f00");
   }
 
+  if (currentKnot != null) {
+    currentKnot.updatePathWith(floatingPath, floatingPoint);
+  }
+
+  /*
   if (lastClickedPoint != null) {
-    const lastClickedPointX = lastClickedPoint.getPointAtLength().x;
-    const lastClickedPointY = lastClickedPoint.getPointAtLength().y + pointRadius;
-
-    const clickX = e.clientX - slateDiv.getBoundingClientRect().left;
-    const clickY = e.clientY - slateDiv.getBoundingClientRect().top;
-
-    const pathString = `M ${ lastClickedPointX } ${ lastClickedPointY } L ${ clickX } ${ clickY }`;
+    const pathString = `M ${ lastClickedPoint.attrs.cx } ${ lastClickedPoint.attrs.cy } L ${ clickX } ${ clickY }`;
 
     if (floatingPath != null) {
       floatingPath.attr("path", pathString);
@@ -126,35 +218,20 @@ function drawMouseMoveHandler(e) {
       floatingPath = paper.path(pathString);
     }
   }
+  */
 }
 
 function drawClickHandler(e) {
-  //@TODO: Scope for better object management.
-  // Instead of creating 'var cirlce' maybe next time, just 
-  floatingPoint.remove();
+  floatingPoint.attr("fill", "#00f");
+
+  if (currentKnot != null) {
+    currentKnot.addPoint(floatingPoint);
+  }
+  else {
+    currentKnot = new Knot([floatingPoint], false);
+  }
+
   floatingPoint = null;
-  if (floatingPath != null) {
-    floatingPath.remove();
-    floatingPath = null;
-  }
-
-  const clickX = e.clientX - slateDiv.getBoundingClientRect().left;
-  const clickY = e.clientY - slateDiv.getBoundingClientRect().top;
-
-  console.log(`(${clickX}, ${clickY})`);
-
-  var circle = paper.circle(clickX, clickY, pointRadius);
-  circle.attr("fill", "#00f");
-  if (lastClickedPoint != null) {
-    const lastClickedPointX = lastClickedPoint.getPointAtLength().x;
-    //@TODO: Understand why do we need the '+ pointRadius'.
-    const lastClickedPointY = lastClickedPoint.getPointAtLength().y + pointRadius;
-
-    var pathString = `M ${ lastClickedPointX } ${ lastClickedPointY } L ${ clickX } ${ clickY }`;
-    paper.path(pathString);
-  }
-
-  lastClickedPoint = circle;
 }
 
 
